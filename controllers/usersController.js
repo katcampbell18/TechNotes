@@ -5,9 +5,9 @@ const bcrypt = require('bcrypt')
 
 //@desc Get all users
 //@route GET /users
-const getaAllUsers = asyncHandler(async (req, res) => {
+const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password').lean()
-    if(!users) {
+    if(!users?.length) {
         return res.status(400).json({ message: 'No users found' })
     }
     res.json(users)
@@ -28,7 +28,7 @@ const addNewUser = asyncHandler(async (req, res) => {
 
     const hashedPwd = await bcrypt.hash(password, 10) //salt rounds
 
-    const userObject = { username, 'password': hashedPwd, roles }
+    const userObject = { username, "password": hashedPwd, roles }
 
     const user = await User.create(userObject)
     if(user) {
@@ -76,8 +76,8 @@ const deleteUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'User ID required' })
     }
 
-    const notes = await Note.findOne({ user: id }).lean().exec()
-    if(notes?.length) {
+    const note = await Note.findOne({ user: id }).lean().exec()
+    if(note) {
         return res.status(400).json({ message: 'User has assigned notes' })
     }
 
@@ -87,13 +87,13 @@ const deleteUser = asyncHandler(async (req, res) => {
     }
 
     const result = await user.deleteOne()
-    const reply = `Username ${result.username} with ID ${result.id} deleted`
+    const reply = `Username ${result.username} with ID ${result._id} deleted`
     res.json(reply)
 })
 
 
-module.export = {
-    getaAllUsers,
+module.exports = {
+    getAllUsers,
     addNewUser,
     updateUser,
     deleteUser
